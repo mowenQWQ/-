@@ -48,20 +48,75 @@
 
 将本目录复制到项目的 Skill 目录：
 
-# 1. 先把仓库克隆到临时目录
+## 安装
+
+将本仓库中的 Skill 复制到 CodeBuddy 的 Skill 目录即可使用。下面提供两种安装方式：**安装到当前项目**（仅本项目可用）或 **安装到全局**（所有项目可用），任选其一。
+
+### 方式一：安装到当前项目
+
+#### 1. 先把仓库克隆到临时目录
+
+```bash
 git clone https://github.com/mowenQWQ/Web-Security-Test-Rules.git /tmp/web-security-test-rules
 
-# 2. 把 skill 复制到当前项目的 .codebuddy/skills/ 下
-mkdir -p .codebuddy/skills/
-cp -r /tmp/web-security-test-rules/.codebuddy/skills/* .codebuddy/skills/
+```
 
-# 3. 清理临时目录（可选）
+#### 2. 把 skill 复制到当前项目的 `.codebuddy/skills/` 下
+
+```bash
+mkdir -p .codebuddy/skills/
+cp -r /tmp/web-security-test-rules/.codebuddy/skills/. .codebuddy/skills/
+
+```
+
+#### 3. 清理临时目录（可选）
+
+```bash
 rm -rf /tmp/web-security-test-rules
 
-安装后，在对话中提到"安全测试""渗透测试""隐蔽测试"等关键词，或明确要求对网站做安全测试时，Skill 自动激活。
+```
 
 ---
 
+### 方式二：安装到全局 Skill 目录
+
+#### 1. 先把仓库克隆到临时目录
+
+```bash
+git clone https://github.com/mowenQWQ/Web-Security-Test-Rules.git /tmp/web-security-test-rules
+
+```
+
+#### 2. 把 skill 复制到全局目录 `~/.codebuddy/skills/` 下
+
+```bash
+mkdir -p ~/.codebuddy/skills/
+cp -r /tmp/web-security-test-rules/.codebuddy/skills/. ~/.codebuddy/skills/
+
+```
+
+#### 3. 清理临时目录（可选）
+
+```bash
+rm -rf /tmp/web-security-test-rules
+
+```
+
+> 💡 说明：
+> - `cp -r 源/. 目标/` 末尾的 `/.` 表示复制目录的**全部内容**（含隐藏文件），避免多嵌套一层目录。
+> - Windows 用户若无 `git`/`cp` 命令，可使用 Git Bash，或手动下载仓库 zip 后解压，将 `.codebuddy/skills/` 下的内容复制到对应目录。
+
+---
+
+## 用法
+
+安装后，在对话中提到 **“安全测试”“渗透测试”“隐蔽测试”** 等关键词，或明确要求对某网站做安全测试时，Skill 会自动激活。
+
+1. **发起测试**：对 AI 说 “帮我测试 `https://example.com` 的安全”，Skill 会先走 **授权门禁**（确认你拥有测试授权 / 为目标所有者），通过后才执行。
+2. **遵循最小影响原则**：默认只进行非破坏性、低影响的探测，避免对目标造成干扰。
+3. **查看报告**：测试完成后会输出结构化的风险发现与修复建议。
+
+> ⚠️ 本 Skill 仅用于 **已获授权** 的安全测试（自有系统、CTF、Bug Bounty 等）。未经授权对他人系统进行测试属于违法行为，请勿滥用。
 ## 用法
 
 1. **发起测试**：对 AI 说"帮我测试 https://example.com 的安全"，Skill 先走"授权门禁"。
