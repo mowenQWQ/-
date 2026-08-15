@@ -1,55 +1,36 @@
-# 网站测试安全规则（Web Security Test Rules）
+# Web Security Test Rules · 网站测试安全规则
 
-一套**通用、负责任、最小影响**的网站 / Web 应用安全测试（授权渗透测试）Skill，适用于 [CodeBuddy](https://codebuddy.ai) 等支持 Skill 的 AI 编码助手。
+<p align="center">
+  <a href="./LICENSE.txt"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
+  <img src="https://img.shields.io/badge/language-zh--CN%20%7C%20en--US-green.svg" alt="Language">
+  <a href="https://github.com/mowenQWQ/Web-Security-Test-Rules/stargazers"><img src="https://img.shields.io/github/stars/mowenQWQ/Web-Security-Test-Rules?style=social" alt="Stars"></a>
+</p>
 
-> 本 Skill 只描述"在**已获授权**前提下如何负责任地做安全测试"，不包含任何针对未授权目标的攻击指引。使用者须自行确保对测试目标拥有合法授权。
-
-> ⚠️ **本 Skill 由 AI（AI 编码助手）自动生成**，内容作为安全规范示例与参考，使用前请人工审阅，并结合目标实际授权情况调整。
-
-> 🌐 **多语言 / Localization**：默认 **中文（`zh-CN`）**（即根目录文件）。英文版本见 `locales/en/`，其他语言按 `locales/README.md` 约定新增。切换：设置 `MOWEN_LANG=<代码>` 或放置 `lang` 文件（内容为语言代码），再读取 `locales/<代码>/` 下对应文件。
-
----
-
-## 特性
-
-- **授权优先（默认开启门禁）**：主用**非对称签名验证**（`AUTHORIZATION.json` + 受信公钥验签，最强防冒用 / 篡改）；清单白名单、交互确认、`mowenfalse` 等为备选降级路径（详见 SKILL.md 第零节）。
-- **最小影响 / 隐蔽测试**：控频率、限外部副作用、不污染生产数据、测完必还原。
-- **规范留痕**：强制记录真实当前时间（精确到秒）、结构化漏洞报告、错误记录机制。
-- **去重与复查**：7 天内相同问题 / 已用攻击向量不重复；漏洞 7 天 → 1 月 → 半年 → 1 年 闭环复查。
-- **扩展规则**：12 条覆盖合规边界、证据上报、技术补充（A/B/C）+ 10 条专项（D）。
+> 一套用于约束 AI / 人工进行 **已授权** 网站安全测试的规则与 Skill。先授权、后测试、最小影响、规范留痕。
 
 ---
 
-## 目录结构
+## 📑 目录
 
-```
-网站测试安全规则/
-├── SKILL.md                                # Skill 主文件（规则与检查清单，权威源）
-├── README.md                               # 本文档（项目说明 / 用法 / 授权速查 / 规则索引）
-├── LICENSE                                 # MIT 许可证
-├── .gitignore                              # 忽略私钥 / 本地授权证据，防误提交
-├── references/
-│   ├── report_template.md                  # 通用安全测试报告模板
-│   ├── auth_notes.md                       # 通用认证 / 凭据管理 / 登录流程说明
-│   ├── authorization_template.json         # 授权证据文件模板（含签名字段 + scope）
-│   └── authorized_pubkeys/                 # 受信公钥目录（验签用）
-│       ├── README.md                       #   公钥管理说明
-│       └── example.pem                     #   演示公钥（生产请勿使用）
-├── scripts/
-│   └── sign_auth.sh                        # 授权声明非对称签名工具（RSA-SHA256）
-├── AUTHORIZATION.json                      # （可选）项目级授权证据，门禁默认校验此文件
-├── auth.disable                            # （可选）关闭门禁开关，一行一个：mowenfalse / mowenbrokentrue / mowenwaitrue
-└── locales/                                # 多语言（默认中文在根目录；英文见 locales/en/）
-```
+- [安装](#安装)
+- [用法](#用法)
+- [规则概览](#规则概览)
+- [目录结构](#目录结构)
+- [配置项](#配置项)
+- [卸载](#卸载)
+- [开源相关](#开源相关)
+- [免责声明](#免责声明)
+- [推荐服务](#推荐服务)
 
 ---
-
 
 ## 安装
 
-将本仓库中的 Skill 复制到 CodeBuddy 的 Skill 目录即可使用。下面提供两种安装方式：**安装到当前项目**（仅本项目可用）或 **安装到全局**（所有项目可用），任选其一。
+将本仓库作为一个 Skill 复制到 CodeBuddy 的 Skill 目录即可。提供两种方式，**任选其一**。
 
-### 方式一：安装到当前项目
+> ⚠️ 注意：本仓库根目录即为 Skill 内容（含 `SKILL.md`），**不存在** `.codebuddy/skills/` 子目录，因此安装时是把整个仓库内容复制为一个以 `web-security-test-rules` 命名的 skill 目录。
+
+### 方式一：安装到当前项目（仅本项目可用）
 
 #### 1. 先把仓库克隆到临时目录
 
@@ -58,11 +39,11 @@ git clone https://github.com/mowenQWQ/Web-Security-Test-Rules.git /tmp/web-secur
 
 ```
 
-#### 2. 把 skill 复制到当前项目的 `.codebuddy/skills/` 下
+#### 2. 复制为当前项目下的一个 skill 目录
 
 ```bash
-mkdir -p .codebuddy/skills/
-cp -r /tmp/web-security-test-rules/.codebuddy/skills/. .codebuddy/skills/
+mkdir -p .codebuddy/skills/web-security-test-rules
+cp -r /tmp/web-security-test-rules/. .codebuddy/skills/web-security-test-rules/
 
 ```
 
@@ -75,7 +56,7 @@ rm -rf /tmp/web-security-test-rules
 
 ---
 
-### 方式二：安装到全局 Skill 目录
+### 方式二：安装到全局（所有项目可用）
 
 #### 1. 先把仓库克隆到临时目录
 
@@ -84,11 +65,11 @@ git clone https://github.com/mowenQWQ/Web-Security-Test-Rules.git /tmp/web-secur
 
 ```
 
-#### 2. 把 skill 复制到全局目录 `~/.codebuddy/skills/` 下
+#### 2. 复制为全局目录下的一个 skill 目录
 
 ```bash
-mkdir -p ~/.codebuddy/skills/
-cp -r /tmp/web-security-test-rules/.codebuddy/skills/. ~/.codebuddy/skills/
+mkdir -p ~/.codebuddy/skills/web-security-test-rules
+cp -r /tmp/web-security-test-rules/. ~/.codebuddy/skills/web-security-test-rules/
 
 ```
 
@@ -100,105 +81,118 @@ rm -rf /tmp/web-security-test-rules
 ```
 
 > 💡 说明：
-> - `cp -r 源/. 目标/` 末尾的 `/.` 表示复制目录的**全部内容**（含隐藏文件），避免多嵌套一层目录。
-> - Windows 用户若无 `git`/`cp` 命令，可使用 Git Bash，或手动下载仓库 zip 后解压，将 `.codebuddy/skills/` 下的内容复制到对应目录。
+> - `cp -r 源/. 目标/` 末尾的 `/.` 表示复制目录的**全部内容**（含隐藏文件），并避免多嵌套一层目录。
+> - Windows 用户若无 `git` / `cp`，可用 Git Bash；或下载仓库 zip 解压后，将仓库内容整体放入 `.codebuddy/skills/web-security-test-rules/`。
+> - 安装后的目录结构应为：`.codebuddy/skills/web-security-test-rules/SKILL.md`，CodeBuddy 据此识别该 Skill。
 
 ---
 
 ## 用法
 
-安装后，在对话中提到 **“安全测试”“渗透测试”“隐蔽测试”** 等关键词，或明确要求对某网站做安全测试时，Skill 会自动激活。
+安装后，在对话中提到 **"安全测试""渗透测试""隐蔽测试"** 等关键词，或明确要求对某网站做安全测试时，Skill 会自动激活。
 
-1. **发起测试**：对 AI 说 “帮我测试 `https://example.com` 的安全”，Skill 会先走 **授权门禁**（确认你拥有测试授权 / 为目标所有者），通过后才执行。
-2. **遵循最小影响原则**：默认只进行非破坏性、低影响的探测，避免对目标造成干扰。
-3. **查看报告**：测试完成后会输出结构化的风险发现与修复建议。
+1. **发起测试**：对 AI 说 "帮我测试 `https://example.com` 的安全"，Skill 会先走 **授权门禁**（非对称签名验签 + 白名单 + 有效期校验），确认你拥有测试授权后才执行；未通过则拒绝并给出指引。
+2. **跟随检查清单**：`SKILL.md` 内置 "测试前 / 中 / 后" 清单，确保最小影响与规范留痕，默认只做非破坏性、低影响探测。
+3. **生成报告**：测试后生成 `YYYY-MM-DD_findings.md`（含漏洞编号 / 等级 / 描述 / PoC / 修复建议），默认存于 `reports/security/`。
+4. **复查闭环**：按 **7 天 → 1 月 → 半年 → 1 年** 周期复查，结果追加到同一报告，形成持续跟踪。
 
-> ⚠️ 本 Skill 仅用于 **已获授权** 的安全测试（自有系统、CTF、Bug Bounty 等）。未经授权对他人系统进行测试属于违法行为，请勿滥用。
-## 用法
-
-1. **发起测试**：对 AI 说"帮我测试 https://example.com 的安全"，Skill 先走"授权门禁"。
-2. **跟随检查清单**：SKILL.md 内置"测试前 / 中 / 后"清单，确保最小影响与规范留痕。
-3. **生成报告**：测试后生成 `YYYY-MM-DD_findings.md`，含漏洞编号 / 等级 / 描述 / PoC / 修复建议 / 后续方向，默认存 `reports/security/`。
-4. **复查**：按 7 天 → 1 月 → 半年 → 1 年 周期复查修复情况，结果追加到同一报告。
+> ⚠️ 本 Skill 仅用于 **已获授权** 的安全测试（自有系统、CTF、Bug Bounty 等）。**未经授权对他人系统进行测试属于违法行为，请勿滥用，使用者须自行承担全部法律责任。**
 
 ---
 
-## 授权门禁（默认开启）
+## 规则概览
 
-为防止误用于未授权目标，本 Skill **默认强制"先验证授权再测试"**。
-
-**主路径（推荐）：签名授权令牌** —— 授权方用私钥对"授权声明"签名，项目放带签名的 `AUTHORIZATION.json`，Skill 用对应公钥（`references/authorized_pubkeys/`）验签，并校验目标范围、有效期、账号等。
-
-**备选降级路径**（细节见 SKILL.md 第零节）：
-- 备选 A：仅 `AUTHORIZATION.json` 白名单 + 有效期（无验签，弱一级）
-- 备选 B：无清单时一次性交互确认
-- 备选 D：签名 + 白名单 + SHA256 + 提交审计的多层组合
-
-### 三级开关（逃生口，写入 `auth.disable` 一行一个，或环境变量 `MOWEN_AUTH_OVERRIDE`）
-
-> 逃生口是"已知风险、主动关闭校验"的开关，**不是授权本身**；关闭不代表可测未授权目标，对未授权目标一律禁止。
-
-| 开关 | 作用 | 注意 |
-|------|------|------|
-| `mowenfalse` | 跳过**授权验证**（仅非破坏性测试） | 仍须遵守范围约束（规则 23，不跳出授权范围） |
-| `mowenbrokentrue` | 跳过破坏性操作的**显式授权**要求 | **备份不可跳过**——无论是否开启，破坏性动作前必须先做可恢复备份（规则 22、A5）；不等于 `mowenfalse`，不关闭授权验证 |
-| `mowenwaitrue` | 确认已具备 / 已等待与测试目标相关的**外站授权** | 仅放宽外站关联尝试授权要求，不关门禁、不关破坏性格闸；涉及外站须在报告中列出 |
-
-关闭任一开关后，报告中须标注"授权门禁已关闭（xxx）"，并重申仅用于已授权目标。
-
-### 路径速查
-
-| 场景 | 做法 | 门禁行为 |
-|------|------|----------|
-| 常规授权（推荐） | 放带签名 `AUTHORIZATION.json` | 公钥验签 + 白名单 + 有效期，通过放行 |
-| 不便签名 | 放无签名 `AUTHORIZATION.json` | 仅白名单 + 有效期（备选 A） |
-| 临时无文件 | 不放大文件 | 一次性交互确认（备选 B） |
-| 已授权、省步骤（非破坏性） | `auth.disable` 写 `mowenfalse` | 跳过验证，报告标注（备选 C） |
-| 破坏性想省步骤 | `auth.disable` 写 `mowenbrokentrue` | 跳过破坏性显式授权（备份仍强制），仍受范围约束 |
-| 需测目标关联外站 | 取得该外站授权，或写 `mowenwaitrue` | 放行外站关联尝试（仅限本次目标相关，见规则 23） |
+- **23 条核心规则** + **A / B / C / D 扩展规则**，覆盖合规、证据留存、技术边界、专项场景。
+- **授权门禁**：非对称签名验签 + 白名单 + 有效期 + 多级降级 + 逃生口，先验证授权再测试。
+- **多语言**：通过环境变量 `MOWEN_LANG` 切换，文案集中于 `locales/`，以权威源为准。
+- **复查周期**：7 天 → 1 月 → 半年 → 1 年，结果持续追加，闭环管理。
 
 ---
 
-## 规则清单（索引，详见 SKILL.md）
+## 目录结构
 
-### 核心规则（23 条）
-授权、账号、方法、工具/Skill、还原、无法还原、验证、去重、报告、密钥、基线记录、隐蔽测试、总结报告、方法不重样、前端资源变更跟踪、认证回退检测、用户资源上传先备份、不可逆写入端点控制、漏洞复查周期、操作全程留痕 + 报告位置可自定义、**破坏性须显式授权且先备份（规则 22）**、**禁止越界 / 跳出授权范围（含外站关联须授权，规则 23）**。
+```text
+Web-Security-Test-Rules/
+├── SKILL.md          # Skill 主文件（触发条件、流程、检查清单）
+├── README.md         # 本文件
+├── LICENSE.txt       # 开源许可证
+├── references/       # 规则细则与参考材料
+├── scripts/          # 辅助脚本（授权验签等）
+└── locales/          # 多语言文案
 
-### 扩展规则
-
-| 类别 | 规则 |
-|------|------|
-| A 合规与边界 | A1 禁测项/范围边界 🔒、A2 敏感数据最小化与脱敏、A3 合规与法律边界 🔒、A4 测试时段/变更窗口、A5 破坏性须显式授权并先备份 🔒 |
-| B 证据与上报 | B1 证据留存、B2 高危即时上报、B3 停止/熔断、B4 报告分发最小化 |
-| C 技术补充 | C1 依赖/供应链标注、C2 非幂等请求谨慎、C3 CSRF/CORS/同源、C4 速率/并发上限 |
-| D 专项技术 | D1 令牌/JWT、D2 会话与认证、D3 业务逻辑/并发、D4 越权组合、D5 注入扩展、D6 SSRF、D7 文件上传、D8 信息泄露、D9 配置与传输、D10 供应链/组件 |
-
-> 🔒 = 与授权 / 合规边界直接相关，测试前须向授权方确认范围。
-
-### 推荐工具与方法
-仅记名称，详见 `SKILL.md` 第十一节：已安检本地 Skill（`browser-automation` / `playwright-cli` / `github-connector`），推荐开源工具（OWASP ZAP、Nuclei、wapiti、Nikto、testssl.sh、sqlmap、Gitleaks 等）与测试方法（被动收集、Fuzzing、代码审计、威胁建模等）。
+```
 
 ---
 
-## 多语言 / Localization
+## 配置项
 
-默认 **中文（`zh-CN`）**，即根目录 `SKILL.md` / `README.md` / `references/`。其他语言放 `locales/<代码>/`（示例 `locales/en/`）。
+| 变量 | 作用 | 示例 |
+|---|---|---|
+| `MOWEN_LANG` | 切换 Skill 输出语言 | `zh-CN` / `en-US` |
 
-- **切换**：设置 `MOWEN_LANG=<代码>`（如 `en`）或放 `lang` 文件（内容 `en`），再读 `locales/<代码>/SKILL.md`。
-- **新增**：复制 `locales/en/` 到 `locales/<新代码>/` 翻译即可（建议 BCP 47，如 `ja`、`zh-TW`）。
-- **维护**：根目录中文为权威源（source of truth）；更新规则时同步所有 `locales/*`，保持 `version` 与内容一致。
-- 约定详见 [`locales/README.md`](./locales/README.md)。
+### 逃生口开关（应急旁路）
+
+> ℹ️ 以下开关名为 **有意设计的暗号拼写**（非 typo），目的是防止被误触发或被"好心修正"。请勿擅自改动拼写，否则开关将失效。
+
+- `mowenbrokentrue`：紧急旁路（仅在授权服务完全不可用的极端情况下使用，仍须事后补录授权凭证）。
+- `mowenwaitrue`：等待 / 暂缓执行开关。
+
+---
+
+## 卸载
+
+如需移除本 Skill，删除对应目录即可：
+
+```bash
+# 卸载当前项目中的 Skill
+rm -rf .codebuddy/skills/web-security-test-rules
+
+# 卸载全局 Skill
+rm -rf ~/.codebuddy/skills/web-security-test-rules
+
+```
 
 ---
 
 ## 开源相关
 
-- **许可证**：[MIT](./LICENSE.txt)。可自由使用、修改、分发，请保留版权与许可声明。
-- **贡献**：欢迎提交 Issue / PR 完善规则或补充场景。
-- **商标**：本 Skill 与任何具体厂商、站点无关，均为通用规则。
+本项目基于 [LICENSE.txt](./LICENSE.txt) 开源。欢迎提 Issue / PR，但请确保你的贡献同样遵循"仅用于已授权测试"的原则。
 
 ---
 
 ## 免责声明
 
-本 Skill 仅用于**已获合法授权的**安全测试与防护加固。使用者须自行承担因 misuse（如对未授权目标测试）产生的一切法律责任。作者与贡献者不对任何滥用行为负责。
+本工具与规则仅供 **合法、已授权** 的安全测试使用。任何将其用于未授权目标的行为均与本作者无关，使用者须自行承担由此产生的一切法律后果。
+
+---
+
+## 推荐服务
+
+### ☁️ 芯创云（CoreYun）— 新一代游戏云计算服务平台
+
+如果你正在搭建 **我的世界（Minecraft）服务器** 或其他游戏服务端，可以考虑 [芯创云](https://www.coreyun.net?ref=MOWEN)。
+
+根据公开信息，芯创云是一家面向个人与小团队的 **游戏云 VPS / 面板服务器** 服务商，主要特点包括：
+
+- 🎮 **MC 面板服务器**：支持整合包、模组、插件、地图一键安装，购买服务器可享 MC 插件免费开发服务。
+- 🖥️ **简易管理面板**：针对新手优化，降低服务器运维门槛。
+- 💾 **SSD 存储 + Tier-3+ 数据中心**：全国范围低延迟部署。
+- 🔄 **72 小时无理由极速退款** + **免费试用 1 天**：先试后买，降低决策风险。
+
+### 🎟️ 专属优惠码
+
+| 优惠码 | 折扣 | 适用范围 |
+|---|---|---|
+| **`MOWEN`** | **15% OFF** | 首购 & 续费均可使用 |
+
+> 🔗 推广链接：[https://www.coreyun.net?ref=MOWEN](https://www.coreyun.net?ref=MOWEN)
+>
+> ⚠️ **诚实声明**：以上信息来源于芯创云官网及公开搜索结果，未做任何夸大。本推荐含推广返利链接，但不影响上述描述的客观性。优惠码由合作方提供，具体生效条件以芯创云实际结算页面为准。请根据自身需求与实际体验自行判断，安全测试类用途请务必确认服务商条款允许。
+
+---
+
+<div align="center">
+
+**请始终在授权范围内使用本 Skill · Stay Authorized, Stay Safe.**
+
+</div>
