@@ -48,13 +48,15 @@
 
 将本目录复制到项目的 Skill 目录：
 
-```bash
-# 方式一：直接复制到项目
-cp -r https://github.com/mowenQWQ/Web-Security-Test-Rules/.codebuddy/skills/
+# 1. 先把仓库克隆到临时目录
+git clone https://github.com/mowenQWQ/Web-Security-Test-Rules.git /tmp/web-security-test-rules
 
-# 方式二：放到全局 Skill 目录
-cp -r https://github.com/mowenQWQ/Web-Security-Test-Rules/.codebuddy/skills/
-```
+# 2. 把 skill 复制到当前项目的 .codebuddy/skills/ 下
+mkdir -p .codebuddy/skills/
+cp -r /tmp/web-security-test-rules/.codebuddy/skills/* .codebuddy/skills/
+
+# 3. 清理临时目录（可选）
+rm -rf /tmp/web-security-test-rules
 
 安装后，在对话中提到"安全测试""渗透测试""隐蔽测试"等关键词，或明确要求对网站做安全测试时，Skill 自动激活。
 
